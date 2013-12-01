@@ -44,6 +44,8 @@ $( document ).ready(function() {
 
 var selectedObject1 = false;
 var selectedObject2 = false;
+var selectedCell1 = false;
+var selectedCell2 = false;
 
 function setupObjects(data){
 	var newlist = [];
@@ -61,7 +63,7 @@ function setupObjects(data){
 	var currentRow;
 	var num_cols = Math.ceil(Math.sqrt(num_pairs * 2));	
 
-
+	var clickmode = true;
 	$(newlist).each(function(index, item){
 		if(i % num_cols == 0){
 			currentRow = $("<div class='row-fluid'></div>");
@@ -72,27 +74,45 @@ function setupObjects(data){
  		image = image.replace("/dp/original/","/dp/web-large/");
  		console.log(image);
 
-		var cell= $("<div class='span2' id='"+item.id+"'><img src='"+image+"' width=128></div>");
-//		cell.hide();
+		var cell= $("<div class='span2' id='"+item.id+"' align='center' valign='center' width='256' height='256'><span class='question'>?</span><img class='image' src='"+image+"' height=128></div>");
+		$(".image", cell).hide();
 		$(currentRow).append(cell);
 
 		$(cell).click(function(){
+
+			if(!clickmode){
+				return;
+			}
+			$(".image", this).show();
+			$(".question", this).hide();
 			if(!selectedObject1){
-				selectedObject1 = item;				
+				selectedObject1 = item;		
+				selectedCell1 = this;		
 				$("#headercell").text("Picked 1, Pick another with a matching artist.");
 			}else{
 				selectedObject2 = item;
+				selectedCell2 = this;		
+
 				if(selectedObject1.match == selectedObject2.id){
 					$("#headercell").text("Match! Artist is '" + selectedObject1.value.who + "'. Click to continue.");
+					$(selectedCell1).unbind();
+					$(selectedCell2).unbind();
+					clickmode= false;
 					$("#headercell").unbind();
 					$("#headercell").click(function(){
-						$("#headercell").text("Pick a Pair");
+						clickmode = true;
 						selectedObject2 = selectedObject1 = false;
 					});
 				}else{
 					$("#headercell").text("No Match! Click to continue.");
+					clickmode= false;
 					$("#headercell").unbind();
 					$("#headercell").click(function(){
+						$(".image", selectedCell1).hide();
+						$(".question", selectedCell1).show();
+						$(".image", selectedCell2).hide();
+						$(".question", selectedCell2).show();
+						clickmode= true;
 						$("#headercell").text("Pick a Pair");
 						selectedObject2 = selectedObject1 = false;
 					});
