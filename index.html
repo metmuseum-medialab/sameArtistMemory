@@ -1,0 +1,140 @@
+<html>
+<!--
+/*
+same-artist memory game 
+Like memory, but the pictures are not the same, just by the same artist.
+
+*/
+
+-->
+
+<head>
+<title>Same Artists Memory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+<script src="js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="js/raphael-min.js"></script>
+
+<script language='javascript'>
+var num_pairs = 5;
+
+$( document ).ready(function() {
+			$.ajax({
+			url : "/?action=getObjectList&num_pairs="+num_pairs,
+			contentType : 'application/json',
+	  		success : function(data, status){
+	  			console.log("success");
+	  			console.log(data);
+	  			setupObjects(data);
+
+	  		},
+
+	  		error : function(jqXHR, status, message){
+	  			console.log("error ");
+	  			console.log(status);
+	  			console.log(message);
+	  		}
+		});		
+
+
+
+});
+
+
+var selectedObject1 = false;
+var selectedObject2 = false;
+
+function setupObjects(data){
+	var newlist = [];
+	$(data).each(function( index, item){
+		console.log(index);
+		console.log(item);
+		newlist.push(item[0]);
+		newlist.push(item[1]);
+	});
+	console.log(newlist);
+	shuffle(newlist);
+	console.log(newlist);
+
+	var i = 0;
+	var currentRow;
+	var num_cols = Math.ceil(Math.sqrt(num_pairs * 2));	
+
+
+	$(newlist).each(function(index, item){
+		if(i % num_cols == 0){
+			currentRow = $("<div class='row-fluid'></div>");
+			$("#game").append(currentRow);			
+		}
+ 		var image = item.value.image;
+ 		console.log(image);
+ 		image = image.replace("/dp/original/","/dp/web-large/");
+ 		console.log(image);
+
+		var cell= $("<div class='span2' id='"+item.id+"'><img src='"+image+"' width=128></div>");
+//		cell.hide();
+		$(currentRow).append(cell);
+
+		$(cell).click(function(){
+			if(!selectedObject1){
+				selectedObject1 = item;				
+				$("#headercell").text("Picked 1, Pick another with a matching artist.");
+			}else{
+				selectedObject2 = item;
+				if(selectedObject1.match == selectedObject2.id){
+					$("#headercell").text("Match! Artist is '" + selectedObject1.value.who + "'. Click to continue.");
+					$("#headercell").unbind();
+					$("#headercell").click(function(){
+						$("#headercell").text("Pick a Pair");
+						selectedObject2 = selectedObject1 = false;
+					});
+				}else{
+					$("#headercell").text("No Match! Click to continue.");
+					$("#headercell").unbind();
+					$("#headercell").click(function(){
+						$("#headercell").text("Pick a Pair");
+						selectedObject2 = selectedObject1 = false;
+					});
+
+				}
+			}
+
+		});
+
+
+		i++;
+	});
+
+}
+
+function shuffle(array) {
+  var currentIndex = array.length
+    , temporaryValue
+    , randomIndex
+    ;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+
+</script>
+
+<body>
+	same artist memory
+	<div class="container" id="header"><div>
+		<div class="row-fluid">
+			<div class="offset1 span10" id="headercell">Pick a Pair<div>
+		</div>
+	</div>
+	<div class="container" id="game"></div>
+</body>
+</html>
