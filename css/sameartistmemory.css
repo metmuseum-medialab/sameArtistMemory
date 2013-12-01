@@ -1,0 +1,11 @@
+.cell {
+	background-color: lightblue;
+	font-size: 2.3em;
+	height: 256px;
+	width: 256px;
+	text-align: center;
+	vertical-align: center;
+	padding: 10px;
+	margin: 5px;
+
+}
